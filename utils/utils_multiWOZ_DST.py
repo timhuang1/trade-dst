@@ -32,6 +32,10 @@ class Lang:
         self.word2index = dict([(v, k) for k, v in self.index2word.items()])
       
     def index_words(self, sent, type):
+        '''
+        call in prepare_data_seq():
+            lang.index_words(ALL_SLOTS, 'slot')
+        '''
         if type == 'utter':
             for word in sent.split(" "):
                 self.index_word(word)
@@ -61,6 +65,10 @@ class Dataset(data.Dataset):
     """Custom data.Dataset compatible with data.DataLoader."""
     def __init__(self, data_info, src_word2id, trg_word2id, sequicity, mem_word2id):
         """Reads source and target sequences from txt files."""
+        '''
+        Instantiation in :
+            dataset = Dataset(data_info, lang.word2index, lang.word2index, sequicity, mem_lang.word2index)
+        '''
         self.ID = data_info['ID']
         self.turn_domain = data_info['turn_domain']
         self.turn_id = data_info['turn_id']
@@ -210,21 +218,36 @@ def collate_fn(data):
     return item_info
 
 def read_langs(file_name, gating_dict, SLOTS, dataset, lang, mem_lang, sequicity, training, max_line = None):
+    '''
+    call in prepare_data_seq():
+        pair_train, train_max_len, slot_train = read_langs(file_train, gating_dict, ALL_SLOTS, "train", lang, mem_lang, sequicity, training)
+    where:
+        file_train = 'data/train_dials.json'
+        gating_dict = {"ptr":0, "dontcare":1, "none":2}
+        ALL_SLOTS = get_slot_information(ontology)
+        # lang, mem_lang = Lang(), Lang()
+        lang.index_words(ALL_SLOTS, 'slot')
+        mem_lang.index_words(ALL_SLOTS, 'slot')
+        sequicity = False
+        training = True
+    '''
     print(("Reading from {}".format(file_name)))
     data = []
     max_resp_len, max_value_len = 0, 0
     domain_counter = {} 
     with open(file_name) as f:
         dials = json.load(f)
-        # create vocab first 
+        # create vocab first by adding all words from sys-utts and usr-utts to the dictionary: lang
         for dial_dict in dials:
-            if (args["all_vocab"] or dataset=="train") and training:
+            if (args["all_vocab"] or dataset=="train") and training: # parser.add_argument('-all_vocab', default=1, type=int)
+
                 for ti, turn in enumerate(dial_dict["dialogue"]):
                     lang.index_words(turn["system_transcript"], 'utter')
                     lang.index_words(turn["transcript"], 'utter')
+
         # determine training data ratio, default is 100%
-        if training and dataset=="train" and args["data_ratio"]!=100:
-            random.Random(10).shuffle(dials)
+        if training and dataset=="train" and args["data_ratio"]!=100: # parser.add_argument('-data_ratio', default=100, type=int)
+            random.Random(10).shuffle(dials) 
             dials = dials[:int(len(dials)*0.01*args["data_ratio"])]
         
         cnt_lin = 1
@@ -255,14 +278,37 @@ def read_langs(file_name, gating_dict, SLOTS, dataset, lang, mem_lang, sequicity
                 dialog_history +=  (turn["system_transcript"] + " ; " + turn["transcript"] + " ; ")
                 source_text = dialog_history.strip()
                 turn_belief_dict = fix_general_label_error(turn["belief_state"], False, SLOTS)
+                '''
+                "belief_state": [
+                  {
+                    "slots": [
+                      [
+                        "hotel-area",
+                        "south"
+                      ]
+                    ],
+                    "act": "inform"
+                  },
+                  {
+                    "slots": [
+                      [
+                        "hotel-parking",
+                        "yes"
+                      ]
+                    ],
+                    "act": "inform"
+                  } ]
+
+                turn_belief_dict = {"hotel-area":"south", "hotel-parking":"yes"}
+                '''
 
                 # Generate domain-dependent slot list
                 slot_temp = SLOTS
                 if dataset == "train" or dataset == "dev":
-                    if args["except_domain"] != "":
+                    if args["except_domain"] != "":  # only apply when except_domain is specified
                         slot_temp = [k for k in SLOTS if args["except_domain"] not in k]
                         turn_belief_dict = OrderedDict([(k, v) for k, v in turn_belief_dict.items() if args["except_domain"] not in k])
-                    elif args["only_domain"] != "":
+                    elif args["only_domain"] != "": # only apply when only_domain is specified
                         slot_temp = [k for k in SLOTS if args["only_domain"] in k]
                         turn_belief_dict = OrderedDict([(k, v) for k, v in turn_belief_dict.items() if args["only_domain"] in k])
                 else:
@@ -274,6 +320,7 @@ def read_langs(file_name, gating_dict, SLOTS, dataset, lang, mem_lang, sequicity
                         turn_belief_dict = OrderedDict([(k, v) for k, v in turn_belief_dict.items() if args["only_domain"] in k])
 
                 turn_belief_list = [str(k)+'-'+str(v) for k, v in turn_belief_dict.items()]
+                # turn_belief_list = ["hotel-area-south", "hotel-parking-yes"]
 
                 if (args["all_vocab"] or dataset=="train") and training:
                     mem_lang.index_words(turn_belief_dict, 'belief')
@@ -328,7 +375,18 @@ def read_langs(file_name, gating_dict, SLOTS, dataset, lang, mem_lang, sequicity
 
 
 def get_seq(pairs, lang, mem_lang, batch_size, type, sequicity):  
-    if(type and args['fisher_sample']>0):
+    '''
+    call in prepare_data_seq():
+        train = get_seq(pair_train, lang, mem_lang, batch_size, True, sequicity)
+    where:
+        # pair_train is a list of dict 
+        pair_train, train_max_len, slot_train = read_langs(file_train, gating_dict, ALL_SLOTS, "train", lang, mem_lang, sequicity, training)
+        # lang, mem_lang = Lang(), Lang()
+        lang.index_words(ALL_SLOTS, 'slot')
+        mem_lang.index_words(ALL_SLOTS, 'slot')
+        batch_size = # -bsz=32
+    '''
+    if(type and args['fisher_sample']>0): # parser.add_argument('-fisher_sample', help='number of sample used to approximate fisher mat', type=int, default=0)
         shuffle(pairs)
         pairs = pairs[:args['fisher_sample']]
 
@@ -343,7 +401,7 @@ def get_seq(pairs, lang, mem_lang, batch_size, type, sequicity):
 
     dataset = Dataset(data_info, lang.word2index, lang.word2index, sequicity, mem_lang.word2index)
 
-    if args["imbalance_sampler"] and type:
+    if args["imbalance_sampler"] and type: # parser.add_argument('-imbsamp','--imbalance_sampler', default=0, type=int)
         data_loader = torch.utils.data.DataLoader(dataset=dataset,
                                                   batch_size=batch_size,
                                                   # shuffle=type,
@@ -351,8 +409,8 @@ def get_seq(pairs, lang, mem_lang, batch_size, type, sequicity):
                                                   sampler=ImbalancedDatasetSampler(dataset))
     else:
         data_loader = torch.utils.data.DataLoader(dataset=dataset,
-                                                  batch_size=batch_size,
-                                                  shuffle=type,
+                                                  batch_size=batch_size, # -bsz=32
+                                                  shuffle=type,  # type is True
                                                   collate_fn=collate_fn)
     return data_loader
 
@@ -378,10 +436,18 @@ def get_slot_information(ontology):
 
 
 def prepare_data_seq(training, task="dst", sequicity=0, batch_size=100):
+    '''
+    call in myTrain.py:
+        train, dev, test, test_special, lang, SLOTS_LIST, gating_dict, max_word = prepare_data_seq(True, args['task'], False, batch_size=int(args['batch']))
+    where:
+        args['task'] = 'dst'
+        batch_size=int(args['batch']) = 32 # parser.add_argument('-bsz','--batch', help='Batch_size', required=False, type=int)
+    '''
     eval_batch = args["eval_batch"] if args["eval_batch"] else batch_size
     file_train = 'data/train_dials.json'
     file_dev = 'data/dev_dials.json'
     file_test = 'data/test_dials.json'
+
     # Create saving folder
     if args['path']:
         folder_name = args['path'].rsplit('/', 2)[0] + '/'
@@ -390,10 +456,12 @@ def prepare_data_seq(training, task="dst", sequicity=0, batch_size=100):
     print("folder_name", folder_name)
     if not os.path.exists(folder_name): 
         os.makedirs(folder_name)
+
     # load domain-slot pairs from ontology
     ontology = json.load(open("data/multi-woz/MULTIWOZ2 2/ontology.json", 'r'))
     ALL_SLOTS = get_slot_information(ontology)
     gating_dict = {"ptr":0, "dontcare":1, "none":2}
+
     # Vocabulary
     lang, mem_lang = Lang(), Lang()
     lang.index_words(ALL_SLOTS, 'slot')
@@ -421,6 +489,8 @@ def prepare_data_seq(training, task="dst", sequicity=0, batch_size=100):
                 pickle.dump(lang, handle)
             with open(folder_name+mem_lang_name, 'wb') as handle: 
                 pickle.dump(mem_lang, handle)
+
+        # To map tokens in this task to vecs using public Embeddings dictionary
         emb_dump_path = 'data/emb{}.json'.format(len(lang.index2word))
         if not os.path.exists(emb_dump_path) and args["load_embedding"]:
             dump_pretrained_emb(lang.word2index, lang.index2word, emb_dump_path)

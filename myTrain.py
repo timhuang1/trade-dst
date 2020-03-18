@@ -35,6 +35,9 @@ model = globals()[args['decoder']](
 # print("[Info] Slots include ", SLOTS_LIST)
 # print("[Info] Unpointable Slots include ", gating_dict)
 
+raise ValueError("Intended pause in myTrain.py!")
+
+
 for epoch in range(200):
     print("Epoch:{}".format(epoch))  
     # Run the train function
@@ -46,7 +49,7 @@ for epoch in range(200):
         # print(data)
         # exit(1)
 
-    if((epoch+1) % int(args['evalp']) == 0):
+    if((epoch+1) % int(args['evalp']) == 0): # parser.add_argument('-evalp','--evalp', required=False, default=1)
         
         acc = model.evaluate(dev, avg_best, SLOTS_LIST[2], early_stop)
         model.scheduler.step(acc)
@@ -58,7 +61,7 @@ for epoch in range(200):
         else:
             cnt+=1
 
-        if(cnt == args["patience"] or (acc==1.0 and early_stop==None)): 
+        if(cnt == args["patience"] or (acc==1.0 and early_stop==None)):  # parser.add_argument('-patience', default=6, type=int)
             print("Ran out of patient, early stop...")  
             break 
 

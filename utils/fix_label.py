@@ -1,5 +1,9 @@
 
 def fix_general_label_error(labels, type, slots):
+    '''
+    call in :
+        turn_belief_dict = fix_general_label_error(turn["belief_state"], False, SLOTS)
+    '''
     label_dict = dict([ (l[0], l[1]) for l in labels]) if type else dict([ (l["slots"][0][0], l["slots"][0][1]) for l in labels]) 
 
     GENERAL_TYPO = {

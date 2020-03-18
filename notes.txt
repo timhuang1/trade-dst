@@ -1,0 +1,57 @@
+Scripts:
+for preprocessing:
+    python create_data.py
+
+for training Multi-domain DST:
+    python myTrain.py -dec=TRADE -bsz=32 -dr=0.2 -lr=0.001 -le=1
+
+
+for testing Multi-domain DST:
+    python myTest.py -path=${save_path}
+    e.g., python myTest.py -path=save/TRADE-multiwozdst/HDD400BSZ32DR0.2ACC-0.4858
+
+
+
+for training zero-shot DST:
+    (-exceptd: except domain selection, choose one from {hotel, train, attraction, restaurant, taxi})
+    python myTrain.py -dec=TRADE -bsz=32 -dr=0.2 -lr=0.001 -le=1 -exceptd=${domain}
+    e.g., python myTrain.py -dec=TRADE -bsz=32 -dr=0.2 -lr=0.001 -le=1 -exceptd=train
+
+for testing zero-shot DST:
+    python myTest.py -path=${save_path} -exceptd=${domain}
+    e.g., python myTest.py -path=save/TRADE-Exceptrestaurantmultiwozdst/HDD400BSZ32DR0.2ACC-0.5712 -exceptd=restaurant
+
+
+
+
+for training few-shot DST:
+    (-exceptd: except domain selection, choose one from {hotel, train, attraction, restaurant, taxi})
+    python3 fine_tune.py -bsz=8 -dr=0.2 -lr=0.001 -path=${save_path_except_domain} -exceptd=${except_domain}
+
+    e.g., python3 fine_tune.py -bsz=8 -dr=0.2 -lr=0.001 -path=save/TRADE-Exceptrestaurantmultiwozdst/HDD400BSZ32DR0.2ACC-0.5712 -exceptd=restaurant
+
+
+
+
+-----------------------
+Reading from data/train_dials.json
+domain_counter {'hotel': 3381, 'train': 3103, 'restaurant': 3813, 'attraction': 2717, 'taxi': 1654}
+Reading from data/dev_dials.json
+domain_counter {'train': 484, 'hotel': 416, 'attraction': 401, 'restaurant': 438, 'taxi': 207}
+Reading from data/test_dials.json
+domain_counter {'taxi': 195, 'restaurant': 437, 'attraction': 395, 'train': 494, 'hotel': 394}
+
+
+-----------------------
+Read 56668 pairs train
+Read 7374 pairs dev
+Read 7368 pairs test
+Vocab_size: 18311 
+Vocab_size Training 15462
+Vocab_size Belief 1029
+Max. length of dialog words for RNN: 880 
+USE_CUDA=True
+[Train Set & Dev Set Slots]: Number is 30 in total
+['hotel-pricerange', 'hotel-type', 'hotel-parking', 'hotel-book stay', 'hotel-book day', 'hotel-book people', 'hotel-area', 'hotel-stars', 'hotel-internet', 'train-destination', 'train-day', 'train-departure', 'train-arriveby', 'train-book people', 'train-leaveat', 'attraction-area', 'restaurant-food', 'restaurant-pricerange', 'restaurant-area', 'attraction-name', 'restaurant-name', 'attraction-type', 'hotel-name', 'taxi-leaveat', 'taxi-destination', 'taxi-departure', 'restaurant-book time', 'restaurant-book day', 'restaurant-book people', 'taxi-arriveby']
+[Test Set Slots]: Number is 30 in total
+['hotel-pricerange', 'hotel-type', 'hotel-parking', 'hotel-book stay', 'hotel-book day', 'hotel-book people', 'hotel-area', 'hotel-stars', 'hotel-internet', 'train-destination', 'train-day', 'train-departure', 'train-arriveby', 'train-book people', 'train-leaveat', 'attraction-area', 'restaurant-food', 'restaurant-pricerange', 'restaurant-area', 'attraction-name', 'restaurant-name', 'attraction-type', 'hotel-name', 'taxi-leaveat', 'taxi-destination', 'taxi-departure', 'restaurant-book time', 'restaurant-book day', 'restaurant-book people', 'taxi-arriveby']
