@@ -134,6 +134,23 @@ def masked_cross_entropy_for_slot(logits, target, mask, use_softmax=True):
     return loss
 
 def masked_cross_entropy_for_value(logits, target, mask):
+    '''
+    call in TRADE.train_batch():
+        loss_ptr = masked_cross_entropy_for_value(
+        all_point_outputs.transpose(0, 1).contiguous(),
+        data["generate_y"].contiguous(), #[:,:len(self.point_slots)].contiguous(),
+        data["y_lengths"]) #[:,:len(self.point_slots)])
+    where:
+        # all_point_outputs.shape: torch.Size([30, 32, 6, 18311]) [slot_num, batch_size, max_len of value, vocab_num]
+        # data[generate_y].shape: torch.Size([32, 30, 6])  # i.e., [batch_size, slot_num, max_len of value]
+        # data[y_lengths].shape: torch.Size([32, 30]) [batch_size, slot_num]
+
+        refer to
+        turn_belief_dict: {'hotel-pricerange': 'cheap', 'hotel-stars': '4', 'hotel-internet': 'yes'}
+        generate_y: ['cheap', 'none', 'none', 'none', 'none', 'none', 'none', '4', 'yes', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none']
+        gating_label: [0, 2, 2, 2, 2, 2, 2, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+
+    '''
     # logits: b * |s| * m * |v|
     # target: b * |s| * m
     # mask:   b * |s|

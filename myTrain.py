@@ -21,6 +21,9 @@ else:
 avg_best, cnt, acc = 0.0, 0, 0.0
 train, dev, test, test_special, lang, SLOTS_LIST, gating_dict, max_word = prepare_data_seq(True, args['task'], False, batch_size=int(args['batch']))
 
+# raise ValueError("Intended pause in myTrain.py!")
+
+
 model = globals()[args['decoder']](
     hidden_size=int(args['hidden']), 
     lang=lang, 
@@ -35,7 +38,6 @@ model = globals()[args['decoder']](
 # print("[Info] Slots include ", SLOTS_LIST)
 # print("[Info] Unpointable Slots include ", gating_dict)
 
-raise ValueError("Intended pause in myTrain.py!")
 
 
 for epoch in range(200):
@@ -44,10 +46,14 @@ for epoch in range(200):
     pbar = tqdm(enumerate(train),total=len(train))
     for i, data in pbar:
         model.train_batch(data, int(args['clip']), SLOTS_LIST[1], reset=(i==0))
+        raise ValueError("Intended pause in myTrain.py!")
+        
         model.optimize(args['clip'])
         pbar.set_description(model.print_loss())
         # print(data)
         # exit(1)
+
+
 
     if((epoch+1) % int(args['evalp']) == 0): # parser.add_argument('-evalp','--evalp', required=False, default=1)
         

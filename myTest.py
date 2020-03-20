@@ -35,7 +35,7 @@ if args["run_dev_testing"]:
     print("Development Set ...")
     acc_dev = model.evaluate(dev, 1e7, SLOTS_LIST[2]) 
 
-if args['except_domain']!="" and args["run_except_4d"]:
+if args['except_domain']!="" and args["run_except_4d"]: # only apply when except_domain is specified
     print("Test Set on 4 domains...")
     acc_test_4d = model.evaluate(test_special, 1e7, SLOTS_LIST[2]) 
 

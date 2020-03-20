@@ -10,7 +10,8 @@ for testing Multi-domain DST:
     python myTest.py -path=${save_path}
     e.g., python myTest.py -path=save/TRADE-multiwozdst/HDD400BSZ32DR0.2ACC-0.4858
 
-
+    python myTest.py -path=save/TRADE-multiwozdst/HDD400BSZ32DR0.2ACC-0.4879/
+    
 
 for training zero-shot DST:
     (-exceptd: except domain selection, choose one from {hotel, train, attraction, restaurant, taxi})
@@ -43,6 +44,12 @@ domain_counter {'taxi': 195, 'restaurant': 437, 'attraction': 395, 'train': 494,
 
 
 -----------------------
+[Warning] Using hidden size = 400 for pretrained word embedding (300 + 100)...
+{'dataset': 'multiwoz', 'task': 'dst', 'path': None, 'sample': None, 'patience': 6, 'earlyStop': 'BLEU', 'all_vocab': 1, 'imbalance_sampler': 0, 'data_ratio': 100, 'unk_mask': 1, 'batch': 32, 'run_dev_testing': 0, 'vizualization': 0, 'genSample': 0, 'evalp': 1, 'addName': '', 'eval_batch': 0, 'use_gate': 1, 'load_embedding': 1, 'fix_embedding': 0, 'parallel_decode': 0, 'decoder': 'TRADE', 'hidden': 400, 'learn': 0.001, 'drop': 0.2, 'limit': -10000, 'clip': 10, 'teacher_forcing_ratio': 0.5, 'lambda_ewc': 0.01, 'fisher_sample': 0, 'all_model': False, 'domain_as_task': False, 'run_except_4d': 1, 'strict_domain': False, 'except_domain': '', 'only_domain': ''}
+
+-----------------------
+TRAINING:
+
 Read 56668 pairs train
 Read 7374 pairs dev
 Read 7368 pairs test
@@ -55,3 +62,64 @@ USE_CUDA=True
 ['hotel-pricerange', 'hotel-type', 'hotel-parking', 'hotel-book stay', 'hotel-book day', 'hotel-book people', 'hotel-area', 'hotel-stars', 'hotel-internet', 'train-destination', 'train-day', 'train-departure', 'train-arriveby', 'train-book people', 'train-leaveat', 'attraction-area', 'restaurant-food', 'restaurant-pricerange', 'restaurant-area', 'attraction-name', 'restaurant-name', 'attraction-type', 'hotel-name', 'taxi-leaveat', 'taxi-destination', 'taxi-departure', 'restaurant-book time', 'restaurant-book day', 'restaurant-book people', 'taxi-arriveby']
 [Test Set Slots]: Number is 30 in total
 ['hotel-pricerange', 'hotel-type', 'hotel-parking', 'hotel-book stay', 'hotel-book day', 'hotel-book people', 'hotel-area', 'hotel-stars', 'hotel-internet', 'train-destination', 'train-day', 'train-departure', 'train-arriveby', 'train-book people', 'train-leaveat', 'attraction-area', 'restaurant-food', 'restaurant-pricerange', 'restaurant-area', 'attraction-name', 'restaurant-name', 'attraction-type', 'hotel-name', 'taxi-leaveat', 'taxi-destination', 'taxi-departure', 'restaurant-book time', 'restaurant-book day', 'restaurant-book people', 'taxi-arriveby']
+
+-----------------------
+turn_belief_dict: {'hotel-pricerange': 'cheap', 'hotel-stars': '4', 'hotel-internet': 'yes'}
+generate_y: ['cheap', 'none', 'none', 'none', 'none', 'none', 'none', '4', 'yes', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none']
+gating_label: [0, 2, 2, 2, 2, 2, 2, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+
+turn_belief_dict: {'hotel-pricerange': 'cheap', 'hotel-stars': '4', 'hotel-internet': 'yes'}
+generate_y: ['cheap', 'none', 'none', 'none', 'none', 'none', 'none', '4', 'yes', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none']
+gating_label: [0, 2, 2, 2, 2, 2, 2, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+turn_belief_dict: {'hotel-pricerange': 'cheap', 'hotel-stars': '4', 'hotel-internet': 'yes'}
+generate_y: ['cheap', 'none', 'none', 'none', 'none', 'none', 'none', '4', 'yes', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none']
+gating_label: [0, 2, 2, 2, 2, 2, 2, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+turn_belief_dict: {'hotel-pricerange': 'cheap', 'hotel-stars': '4', 'hotel-internet': 'yes'}
+
+
+-----------------------
+{'Joint Acc': 0.48764929424538545, 'Turn Acc': 0.9696796959825829, 'Joint F1': 0.8936386073257993}
+
+-----------------------
+TESTING:
+
+{'dataset': 'multiwoz', 'task': 'dst', 'path': 'save/TRADE-multiwozdst/HDD400BSZ32DR0.2ACC-0.4879/', 'sample': None, 'patience': 6, 'earlyStop': 'BLEU', 'all_vocab': 1, 'imbalance_sampler': 0, 'data_ratio': 100, 'unk_mask': 1, 'batch': None, 'run_dev_testing': 0, 'vizualization': 0, 'genSample': 0, 'evalp': 1, 'addName': '', 'eval_batch': 0, 'use_gate': 1, 'load_embedding': 0, 'fix_embedding': 0, 'parallel_decode': 0, 'decoder': None, 'hidden': 400, 'learn': None, 'drop': None, 'limit': -10000, 'clip': 10, 'teacher_forcing_ratio': 0.5, 'lambda_ewc': 0.01, 'fisher_sample': 0, 'all_model': False, 'domain_as_task': False, 'run_except_4d': 1, 'strict_domain': False, 'except_domain': '', 'only_domain': ''}
+
+
+-----------------------
+Results from TRADE.evaluate(): 
+
+dial ID: PMUL2437.json
+Turn ID: 10
+turn_belief: ['restaurant-pricerange-moderate', 'restaurant-area-centre', 'attraction-type-architecture', 'attraction-name-all saints church', 'attraction-area-centre']
+predict_belief_bsz_ptr: ['attraction-area-centre', 'restaurant-pricerange-moderate', 'restaurant-area-centre', 'attraction-name-all', 'attraction-type-architecture']
+
+dial ID: PMUL2437.json
+Turn ID: 9
+turn_belief: ['restaurant-pricerange-moderate', 'restaurant-area-centre', 'attraction-type-architecture', 'attraction-name-all saints church', 'attraction-area-centre']
+predict_belief_bsz_ptr: ['attraction-area-centre', 'restaurant-pricerange-moderate', 'restaurant-area-centre', 'attraction-name-all', 'attraction-type-architecture']
+
+dial ID: PMUL4648.json
+Turn ID: 9
+turn_belief: ['restaurant-food-indian', 'restaurant-pricerange-expensive', 'restaurant-name-saffron brasserie', 'restaurant-area-centre', 'attraction-name-nusha']
+predict_belief_bsz_ptr: ['restaurant-food-indian', 'restaurant-area-centre', 'attraction-name-nusha']
+
+dial ID: PMUL2437.json
+Turn ID: 8
+turn_belief: ['restaurant-pricerange-moderate', 'restaurant-area-centre', 'attraction-type-architecture', 'attraction-name-all saints church', 'attraction-area-centre']
+predict_belief_bsz_ptr: ['attraction-area-centre', 'restaurant-pricerange-moderate', 'restaurant-area-centre', 'attraction-name-all', 'attraction-type-architecture']
+
+dial ID: PMUL2437.json
+Turn ID: 7
+turn_belief: ['restaurant-pricerange-moderate', 'restaurant-area-centre', 'attraction-type-architecture', 'attraction-name-all saints church', 'attraction-area-centre']
+predict_belief_bsz_ptr: ['attraction-area-centre', 'restaurant-pricerange-moderate', 'restaurant-area-centre', 'attraction-type-architecture']
+
+dial ID: PMUL4648.json
+Turn ID: 8
+turn_belief: ['restaurant-food-indian', 'restaurant-pricerange-expensive', 'restaurant-name-saffron brasserie', 'restaurant-area-centre', 'attraction-name-nusha']
+predict_belief_bsz_ptr: ['restaurant-food-indian', 'restaurant-area-centre', 'attraction-name-nusha']
+
+dial ID: PMUL4648.json
+Turn ID: 7
+turn_belief: ['restaurant-food-indian', 'restaurant-pricerange-expensive', 'restaurant-name-saffron brasserie', 'restaurant-area-centre', 'attraction-name-nusha']
+predict_belief_bsz_ptr: ['restaurant-food-indian', 'restaurant-area-centre', 'attraction-name-nusha']

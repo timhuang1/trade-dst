@@ -24,6 +24,13 @@ from .fix_label import *
 
 EXPERIMENT_DOMAINS = ["hotel", "train", "restaurant", "attraction", "taxi"]
 
+'''
+PAD_token = 1
+SOS_token = 3
+EOS_token = 2
+UNK_token = 0 
+'''
+
 class Lang:
     def __init__(self):
         self.word2index = {}
@@ -163,11 +170,17 @@ def collate_fn(data):
     def merge_multi_response(sequences):
         '''
         merge from batch * nb_slot * slot_len to batch * nb_slot * max_slot_len
+        call in collate_fn():
+            y_seqs, y_lengths = merge_multi_response(item_info["generate_y"])
+        where:
+            item_info["generate_y"] # sequenes of generate_y: ['cheap', 'none', 'none', 'none', 'none', 'none', 'none', '4', 'yes', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none']
+
         '''
         lengths = []
         for bsz_seq in sequences:
             length = [len(v) for v in bsz_seq]
             lengths.append(length)
+        # print ("in collate_fn(): lengths: {}".format(lengths))
         max_len = max([max(l) for l in lengths])
         padded_seqs = []
         for bsz_seq in sequences:
@@ -176,6 +189,7 @@ def collate_fn(data):
                 v = v + [PAD_token] * (max_len-len(v))
                 pad_seq.append(v)
             padded_seqs.append(pad_seq)
+        # print ("in collate_fn(): padded_seqs: {}\n".format(padded_seqs))
         padded_seqs = torch.tensor(padded_seqs)
         lengths = torch.tensor(lengths)
         return padded_seqs, lengths
@@ -323,7 +337,7 @@ def read_langs(file_name, gating_dict, SLOTS, dataset, lang, mem_lang, sequicity
                 # turn_belief_list = ["hotel-area-south", "hotel-parking-yes"]
 
                 if (args["all_vocab"] or dataset=="train") and training:
-                    mem_lang.index_words(turn_belief_dict, 'belief')
+                    mem_lang.index_words(turn_belief_dict, 'b elief')
 
                 class_label, generate_y, slot_mask, gating_label  = [], [], [], []
                 start_ptr_label, end_ptr_label = [], []
@@ -344,7 +358,11 @@ def read_langs(file_name, gating_dict, SLOTS, dataset, lang, mem_lang, sequicity
                     else:
                         generate_y.append("none")
                         gating_label.append(gating_dict["none"])
-                
+
+                # print ("turn_belief_dict: {}".format(turn_belief_dict))
+                # print ("generate_y: {}".format(generate_y))
+                # print ("gating_label: {}".format(gating_label))
+
                 data_detail = {
                     "ID":dial_dict["dialogue_idx"], 
                     "domains":dial_dict["domains"], 
